@@ -20,15 +20,10 @@ void finalizaAlocador(){
     if(topoInicialHeap){
         if(topoInicialHeap - fimHeap == 0)
             printf("Liberou\n");
-        else{
-            if(*(long*)(topoInicialHeap + sizeof(long)) == 1)
-                printf("Tem coisa na heap irmao\n");
-            else{
-                printf("Tem espaço alocado sem uso... liberando\n");
-                fimHeap = sbrk(-(*(long*)(fimHeap)));
-            }
-        }
+        else
+            fimHeap = sbrk(-(*(long*)(fimHeap)));
     }
+
     else
         printf("Topo da heap não foi iniciado\n");
 

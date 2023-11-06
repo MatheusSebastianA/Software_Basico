@@ -31,5 +31,10 @@ int main(){
     *teste6 = 666;
     printf("End: %p t6: %d \n", teste6, *teste6);
 
+    liberaMem(teste1);
+    liberaMem(teste5);
+    liberaMem(teste6);
+    finalizaAlocador();
+
     return 0;
 }
