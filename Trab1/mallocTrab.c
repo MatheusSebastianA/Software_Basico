@@ -49,40 +49,39 @@ int liberaMem(void* bloco){
 //arrumar caso de bloco liberado
 void* alocaMem(int numBytes){
     void *aux = topoInicialHeap;
-    while(aux != NULL){
-        if(fimHeap == topoInicialHeap){
-            topoInicialHeap = sbrk(16);
-            inicioBloco = sbrk(numBytes);
-            fimHeap = inicioBloco + numBytes;
-            *(long*)topoInicialHeap =  1;
-            *(long*)(topoInicialHeap + sizeof(long)) = numBytes;
-            return inicioBloco;
-        }
-        else{
-            if(*(long*)(aux) == 0 && *(long*)(aux + sizeof(long)) >= numBytes){
-                long tam = *(long*)(aux + sizeof(long)) - 16 - numBytes;
-                printf("Tam = %ld + 16 + %ld\n",  *(long*)(aux + sizeof(long)), numBytes);
-                inicioBloco = aux + 2*sizeof(long);
-                *(long*)(aux) = 1;
-                if (tam > 16){
-                    *(long*)(aux + sizeof(long)) = numBytes;
-                    *(long*)(aux + numBytes + 2*sizeof(long)) = 0;
-                    *(long*)(aux + numBytes + 3*sizeof(long)) = tam;
-                }
-                return inicioBloco;
-            }   
-            else if(aux == fimHeap){
-                inicioBloco = sbrk(16);
-                inicioBloco = sbrk(numBytes);
-                fimHeap = inicioBloco + numBytes;
-                *(long*)(inicioBloco - sizeof(long)) =  numBytes;
-                *(long*)(inicioBloco - 2*sizeof(long)) = 1;
-                return inicioBloco;
+    while(aux != fimHeap){
+        if(*(long*)(aux) == 0 && *(long*)(aux + sizeof(long)) >= numBytes){
+            long tam = *(long*)(aux + sizeof(long)) - 16 - numBytes;
+            printf("Tam = %ld + 16 + %ld\n",  *(long*)(aux + sizeof(long)), numBytes);
+            inicioBloco = aux + 2*sizeof(long);
+            *(long*)(aux) = 1;
+            if (tam > 16){
+                *(long*)(aux + sizeof(long)) = numBytes;
+                *(long*)(aux + numBytes + 2*sizeof(long)) = 0;
+                *(long*)(aux + numBytes + 3*sizeof(long)) = tam;
             }
-        }
+            return inicioBloco;
+        }   
         aux = aux + *(long*)(aux+sizeof(long)) + 2*sizeof(long);
     }
-    return inicioBloco;
+
+    if(aux == fimHeap){
+        inicioBloco = sbrk(16);
+        inicioBloco = sbrk(numBytes);
+        fimHeap = inicioBloco + numBytes;
+        *(long*)(inicioBloco - sizeof(long)) =  numBytes;
+        *(long*)(inicioBloco - 2*sizeof(long)) = 1;
+        return inicioBloco;
+    }
+
+    else{
+        topoInicialHeap = sbrk(16);
+        inicioBloco = sbrk(numBytes);
+        fimHeap = inicioBloco + numBytes;
+        *(long*)topoInicialHeap =  1;
+        *(long*)(topoInicialHeap + sizeof(long)) = numBytes;
+        return inicioBloco;
+    }
 }
 
 void imprimeMapa(){

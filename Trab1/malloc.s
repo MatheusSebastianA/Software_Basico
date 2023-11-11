@@ -2,130 +2,65 @@
     topoInicialHeap: .quad 0
     fimHeap: .quad 0
     inicioBloco: .quad 0
+
+    strGerencial: .string "################"
+    charLivre: .string "-"
+    charOcupado: .string "+"
+    charLinha: .string "\n"
+
 .section .text
 .globl _start
 
 iniciaAlocador:
     pushq %rbp
     movq %rsp, %rbp
-    movq $12, %rax
-    movq $0, %rdi
+
+    movq $12, %rax                  #Código de chamada para brk
+    movq $0, %rdi                   #Retorno do endereço atual da heap em %rax
     syscall
-    movq %rax, topoInicialHeap
-    movq %rax, fimHeap
+
+    movq %rax, topoInicialHeap      #topoInicialHeap = endereço inicial da heap
+    movq %rax, fimHeap              #fimHeap = endereço inicial da heap
+
     popq %rbp
+    ret
 
 finalizaAlocador:
     pushq %rbp
     movq %rsp, %rbp
-    movq $12, %rax
-    movq topoInicialHeap, %rbx
+
+    movq $12, %rax                  #Código de chamada para brk
+    movq topoInicialHeap, %rbx      #Restaura a heap para seu endereço inicial
+    syscall
+
+    popq %rbp
+    ret
     
 
 liberaMem:
     pushq %rbp
     movq %rsp, %rbp
 
-
 alocaMem:
     pushq %rbp
     movq %rsp, %rbp
-    subq $8, %rsp #variavel local = aux
 
+    movq TOPO_HEAP, %rbx            #%rbx = fimHeap
+    movq INICIO_HEAP, %rcx          #%rcx = topoInicialHeap
 
-    movq topoInicialHeap, %rax #rax = topoInicialHeap
-    movq fimHeap, %rbx #rbx = fimHeap
-    movq 16(%rbp), %rcx #rcx = num_bytes
-    movq inicioBloco, %rdi #rdi = inicioBloco que sera retornado
-    nmovq topoInicialHeap, %r8x 
-    movq topoInicialHeap, -8(%rbp) #aux = topoInicialHeap
-
-while:
-
-    cmpq $0, -8(%rbp)
-    je fim_while
-    
-        cmpq %rax, %rbx
-        jne else_NV
-        movq %rax, %rdi #inicio bloco = topoInicialHeap
-        addq $16, %rdi #inicio bloco = topoInicialHeap + 16
-        movq %rdi, %rbx #fimHeap = inicioBloco
-        addq %rcx, %rbx #fimHeap = inicioBloco + num_bytes
-
-        movq %rax, %rdx #rdx = topoInicialHeap
-
-        movq (%rax), %rax #rax = *(topoInicialHeap)
-        addq %rcx, %rax #*(topoInicialHeap) = num_bytes
-
-        addq $8, %rdx #rdx = topoInicialHeap + 8
-        movq (%rdx), %rdx #rdx = *(topoInicialHeap + 8)
-        movq $1, %rdx #*(topoInicialHeap + 8) = 1
-
-        addq $8, %rsp
-        popq %rbp
-        ret
-
-    else_NV: #caso de heap nao estar vazia e ter um bloco vazio que tem uma quantidade suficiente de bytes
-        #*(long*)(aux + sizeof(long)) == 0 && *(long*)(aux) >= numBytes
-        movq -8(%rbp), %rax #rax = aux
-        movq (%rax), %rax #aux = *(long*)topoInicialHeap
-        cmpq %rcx, %rax
-        jl else_NB
-
-        movq -8(%rbp), %rax #rax = aux
-        addq $8, %rax #aux = topoInicialHeap + 8
-        movq (%rax), %rax #aux = *(long*)(topoInicialHeap + 8)
-        cmpq $0, %rax 
-        jne else_NB
-
-        movq -8(%rbp), %rdi #inicioBloco = aux 
-        addq $16, %rdi #inicioBloco = aux + 16
-        movq $1, %rax #rax = 1 (*(long*)(aux + 8) = 1)
-        addq $8, %rsp
-        popq %rbp
-        ret
-
-    else_NB: #caso que tem que criar um novo bloco e nao passou por todos os blocos
-        cmpq -8(%rbp), %rbx #if(aux == fimHeap)
-        jne while_iteracao
-
-        addq %rbx, %rdi #inicioBloco = fimHeap
-        addq $16, %rdi #inicioBloco = fimHeap + 2*sizeof(long);
-
-        addq %rdi, %rbx #fimHeap = inicioBloco
-        addq %rcx, %rbx #fimHeap = inicioBloco + num_bytes
-
-        movq %rdi, %rax #rax = inicioBloco
-        subq $16, %rax #rax = inicioBloco - 2*sizeof(long)
-        movq (%rax), %rax #rax = *(long*)(inicioBloco - 2*sizeof(long))
-        movq %rcx, %rax
-
-        movq %rdi, %rax #rax = inicioBloco
-        subq $8, %rax #rax = inicioBloco - sizeof(long)
-        movq (%rax), %rax #rax = *(long*)(inicioBloco - sizeof(long))
-        movq $1, %rax
-
-        addq $8, %rsp
-        popq %rbp
-        ret
-
-    while_iteracao:
-        movq (-8(%rbp)), %rax #rax = *aux
-        addq %rax, -8(%rbp) #aux = aux + *(long*)aux
-        addq $16, -8(%rbp) #aux = aux + *(long*)aux + 2*sizeof(long)
-        jmp while
-
-
-fim_while:
-    movq $0, %rdi
-    addq $8, %rsp
-    popq %rbp
-    ret
-
+    while:
+        
 
 _start:
-    call iniciaAlocador
+    pushq %rbp
+    movq %rsp, %rbp
 
+    subq $8, %rsp              # x = -8(%rbp), y = -16(%rbp)
 
-    movq $60, %rax
-    syscall
+    call inicializaAlocador     # chama a função inicializaAlocador
+
+    movq $20, %rbx              # coloca num_bytes em %rbx
+    pushq %rbx                  # empilha num_bytes (parâmetro)
+    call alocaMem               # chama a função alocaMem
+    addq $8, %rsp               # desempilha o parâmetro
+    movq %rax, -8(%rbp)         # x <-- %rax
