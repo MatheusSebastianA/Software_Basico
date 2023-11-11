@@ -24,5 +24,7 @@ retorna o endereço inicial do bloco.
 */
 void* alocaMem(int numBytes);
 
+void imprimeMapa();
+
 #endif /* mallocTrab.h*/
 

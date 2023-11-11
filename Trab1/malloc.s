@@ -26,6 +26,7 @@ liberaMem:
     pushq %rbp
     movq %rsp, %rbp
 
+
 alocaMem:
     pushq %rbp
     movq %rsp, %rbp
@@ -36,6 +37,7 @@ alocaMem:
     movq fimHeap, %rbx #rbx = fimHeap
     movq 16(%rbp), %rcx #rcx = num_bytes
     movq inicioBloco, %rdi #rdi = inicioBloco que sera retornado
+    nmovq topoInicialHeap, %r8x 
     movq topoInicialHeap, -8(%rbp) #aux = topoInicialHeap
 
 while:
@@ -65,20 +67,20 @@ while:
 
     else_NV: #caso de heap nao estar vazia e ter um bloco vazio que tem uma quantidade suficiente de bytes
         #*(long*)(aux + sizeof(long)) == 0 && *(long*)(aux) >= numBytes
-        movq -8(%rbp), %rex #rex = aux
-        movq (%rex), %rex #aux = *(long*)topoInicialHeap
-        cmpq %rcx, %rex
+        movq -8(%rbp), %rax #rax = aux
+        movq (%rax), %rax #aux = *(long*)topoInicialHeap
+        cmpq %rcx, %rax
         jl else_NB
 
-        movq -8(%rbp), %rex #rex = aux
-        addq $8, %rex #aux = topoInicialHeap + 8
-        movq (%rex), %rex #aux = *(long*)(topoInicialHeap + 8)
-        cmpq $0, %rex 
+        movq -8(%rbp), %rax #rax = aux
+        addq $8, %rax #aux = topoInicialHeap + 8
+        movq (%rax), %rax #aux = *(long*)(topoInicialHeap + 8)
+        cmpq $0, %rax 
         jne else_NB
 
         movq -8(%rbp), %rdi #inicioBloco = aux 
         addq $16, %rdi #inicioBloco = aux + 16
-        movq $1, %rex #rex = 1 (*(long*)(aux + 8) = 1)
+        movq $1, %rax #rax = 1 (*(long*)(aux + 8) = 1)
         addq $8, %rsp
         popq %rbp
         ret
@@ -93,23 +95,23 @@ while:
         addq %rdi, %rbx #fimHeap = inicioBloco
         addq %rcx, %rbx #fimHeap = inicioBloco + num_bytes
 
-        movq %rdi, %rex #rex = inicioBloco
-        subq $16, %rex #rex = inicioBloco - 2*sizeof(long)
-        movq (%rex), %rex #rex = *(long*)(inicioBloco - 2*sizeof(long))
-        movq %rcx, %rex
+        movq %rdi, %rax #rax = inicioBloco
+        subq $16, %rax #rax = inicioBloco - 2*sizeof(long)
+        movq (%rax), %rax #rax = *(long*)(inicioBloco - 2*sizeof(long))
+        movq %rcx, %rax
 
-        movq %rdi, %rex #rex = inicioBloco
-        subq $8, %rex #rex = inicioBloco - sizeof(long)
-        movq (%rex), %rex #rex = *(long*)(inicioBloco - sizeof(long))
-        movq $1, %rex
+        movq %rdi, %rax #rax = inicioBloco
+        subq $8, %rax #rax = inicioBloco - sizeof(long)
+        movq (%rax), %rax #rax = *(long*)(inicioBloco - sizeof(long))
+        movq $1, %rax
 
         addq $8, %rsp
         popq %rbp
         ret
 
     while_iteracao:
-        movq (-8(%rbp)), %rex #rex = *aux
-        addq %rex, -8(%rbp) #aux = aux + *(long*)aux
+        movq (-8(%rbp)), %rax #rax = *aux
+        addq %rax, -8(%rbp) #aux = aux + *(long*)aux
         addq $16, -8(%rbp) #aux = aux + *(long*)aux + 2*sizeof(long)
         jmp while
 
