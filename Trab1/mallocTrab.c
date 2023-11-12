@@ -52,7 +52,6 @@ void* alocaMem(int numBytes){
     while(aux != fimHeap){
         if(*(long*)(aux) == 0 && *(long*)(aux + sizeof(long)) >= numBytes){
             long tam = *(long*)(aux + sizeof(long)) - 16 - numBytes;
-            printf("Tam = %ld + 16 + %ld\n",  *(long*)(aux + sizeof(long)), numBytes);
             inicioBloco = aux + 2*sizeof(long);
             *(long*)(aux) = 1;
             if (tam > 16){
@@ -65,23 +64,13 @@ void* alocaMem(int numBytes){
         aux = aux + *(long*)(aux+sizeof(long)) + 2*sizeof(long);
     }
 
-    if(aux == fimHeap){
-        inicioBloco = sbrk(16);
-        inicioBloco = sbrk(numBytes);
-        fimHeap = inicioBloco + numBytes;
-        *(long*)(inicioBloco - sizeof(long)) =  numBytes;
-        *(long*)(inicioBloco - 2*sizeof(long)) = 1;
-        return inicioBloco;
-    }
-
-    else{
-        topoInicialHeap = sbrk(16);
-        inicioBloco = sbrk(numBytes);
-        fimHeap = inicioBloco + numBytes;
-        *(long*)topoInicialHeap =  1;
-        *(long*)(topoInicialHeap + sizeof(long)) = numBytes;
-        return inicioBloco;
-    }
+    inicioBloco = sbrk(16);
+    inicioBloco = sbrk(numBytes);
+    fimHeap = inicioBloco + numBytes;
+    *(long*)(inicioBloco - sizeof(long)) =  numBytes;
+    *(long*)(inicioBloco - 2*sizeof(long)) = 1;
+    return inicioBloco;
+    
 }
 
 void imprimeMapa(){
@@ -89,6 +78,8 @@ void imprimeMapa(){
     long tam, ocup = 0;
     while(aux < fimHeap){
         printf("Endereço: %p\n", aux);
+        printf("Ocup: %ld\n", *(long*)aux);
+        printf("TAm: %ld\n", *(long*)(aux+8));
         ocup = *(long*)aux;
         tam = *(long*)(aux+8);
         printf("################");
@@ -98,7 +89,7 @@ void imprimeMapa(){
         }
         else{
             for(int i = 0; i < tam; i++)
-                printf("+");
+                printf("-");
         }
         printf("\n");
         aux = aux + *(long*)(aux+sizeof(long)) + 2*sizeof(long);

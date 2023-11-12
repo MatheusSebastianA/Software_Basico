@@ -28,6 +28,7 @@ int main(){
 
     printf("End: %p t5: %d\n", teste5, *teste5);
     printf("End: %p t6: %d\n", teste6, *teste6);
+    liberaMem(teste6);
     imprimeMapa();
     finalizaAlocador();
 
