@@ -179,7 +179,7 @@ alocaMem:
                 popq %rbp
                 ret
 
-        while_it1:
+        while_it1:                              #iterador para rcx receber o endereço gerencial do próximo bloco
         movq 8(%rcx), %rdx                      #rdx = tamanho do bloco
         addq $16, %rcx                          #rcx = rcx + 16
         addq %rdx, %rcx                         #rcx = rcx + 16 + tamanho do bloco
