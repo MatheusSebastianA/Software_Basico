@@ -208,8 +208,8 @@ alocaMem:
     movq %rcx, 8(%rbx)                          #*(%rbx + 8) = num_bytes (parâmetro)
 
     addq $16, fimHeap                           #fimHeap += 16
-    addq %rcx, fimHeap                          #fimHeap += num_bytes (parâmetro)
-    addq $16, %rbx                              #%rbx = %rbx + 16
+    addq %rcx, fimHeap                          #fimHeap += 16 + num_bytes (parâmetro)
+    addq $16, %rbx                              #%rbx = fimHeap(anterior) + 16
 
     movq %rbx, %rax                             #%rax = %rbx (endereço do bloco)
 
