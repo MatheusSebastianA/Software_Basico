@@ -21,7 +21,7 @@ iniciaAlocador:
 
     movq %rax, topoInicialHeap                  #topoInicialHeap = endereço inicial da heap
     movq %rax, fimHeap                          #fimHeap = endereço inicial da heap
-    movq %rax, topoInicialHeap                  #topoInicialHeap = endereço inicial da heap
+    movq %rax, inicioBloco                  #topoInicialHeap = endereço inicial da heap
 
     popq %rbp
     ret
