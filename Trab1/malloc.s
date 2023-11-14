@@ -194,8 +194,8 @@ alocaMem:
     movq 16(%rbp), %rbx                         #%rbx = num_bytes (parâmetro)
 
     addq $16, %rbx                              #%rbx = num_bytes + 16
-    subq %rdx, %rcx                             #%rcx = inicioBloco - fimHeap 
-    subq %rcx, %rbx                             #%rbx = num_bytes + 16 - (inicioBloco - fimHeap)
+    subq %rcx, %rdx                             #%rdx = fimHeap - inicioBloco
+    addq %rdx, %rbx                             #%rbx = num_bytes + 16 + (fimHeap - inicioBloco)
     addq %rbx, inicioBloco                      #inicioBloco += rbx
 
     movq inicioBloco, %rdi                      #%rdi = inicioBloco
