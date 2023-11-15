@@ -30,7 +30,7 @@ finalizaAlocador:
     movq %rsp, %rbp
 
     movq $12, %rax                              #código de chamada de sistema para brk
-    movq topoInicialHeap, %rbx                  #restaura a heap para seu endereço inicial
+    movq topoInicialHeap, %rdi                  #restaura a heap para seu endereço inicial
     syscall
 
     popq %rbp
@@ -290,7 +290,7 @@ _start:
 
     call iniciaAlocador                     #chama a função inicializaAlocador
 
-    movq $10, %rbx                           #coloca num_bytes em %rbx
+    movq $4, %rbx                           #coloca num_bytes em %rbx
     pushq %rbx                              #empilha num_bytes (parâmetro)
     call alocaMem                           #chama a função alocaMem
     addq $8, %rsp                           #desempilha o parâmetro
@@ -299,6 +299,39 @@ _start:
     movq $12, %rax                          #código de chamada de sistema para brk
     movq $0, %rdi                           #retorna endereço atual da heap em %rax
     syscall
+
+    movq $4, %rbx                           #coloca num_bytes em %rbx
+    pushq %rbx                              #empilha num_bytes (parâmetro)
+    call alocaMem                           #chama a função alocaMem
+    addq $8, %rsp                           #desempilha o parâmetro
+    movq %rax, -16(%rbp)                    #x2 = %rax
+
+    movq $12, %rax                          #código da syscall para o brk
+    movq $0, %rdi                           #retorna endereço atual da heap em %rax
+    syscall
+
+    movq $4, %rbx                           #coloca num_bytes em %rbx
+    pushq %rbx                              #empilha num_bytes (parâmetro)
+    call alocaMem                           #chama a função alocaMem
+    addq $8, %rsp                           #desempilha o parâmetro
+    movq %rax, -24(%rbp)                    #x3 = %rax
+
+
+    movq -24(%rbp), %rbx                    #coloca x3 (ponteiro para algum bloco da heap) em %rbx
+    pushq %rbx                              #empilha x3 (parâmetro)
+    call liberaMem                          #chama a função liberaMem
+    addq $8, %rsp                           #desempilha o parâmetro
+
+    movq -16(%rbp), %rbx                    #coloca x2 (ponteiro para algum bloco da heap) em %rbx
+    pushq %rbx                              #empilha (parâmetro)
+    call liberaMem                          #chama a função liberaMem
+    addq $8, %rsp                           #desempilha o parâmetro
+
+    movq $4, %rbx                           #coloca num_bytes em %rbx
+    pushq %rbx                              #empilha num_bytes (parâmetro)
+    call alocaMem                           #chama a função alocaMem
+    addq $8, %rsp                           #desempilha o parâmetro
+    movq %rax, -32(%rbp)                    #x4 = %rax
 
     call imprimeMapa
     call finalizaAlocador
