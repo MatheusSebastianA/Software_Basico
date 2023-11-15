@@ -9,7 +9,11 @@
     charQuebraLinha: .string "\n"
 
 .section .text
-.globl _start
+.globl iniciaAlocador
+.globl finalizaAlocador
+.globl alocaMem
+.globl liberaMem
+.globl imprimeMapa
 
 iniciaAlocador:
     pushq %rbp
@@ -30,7 +34,7 @@ finalizaAlocador:
     movq %rsp, %rbp
 
     movq $12, %rax                              #código de chamada de sistema para brk
-    movq topoInicialHeap, %rbx                  #restaura a heap para seu endereço inicial
+    movq topoInicialHeap, %rdi                  #restaura a heap para seu endereço inicial
     syscall
 
     popq %rbp
@@ -43,7 +47,7 @@ liberaMem:
 
     movq fimHeap, %rbx                          #%rbx = fimHeap
     movq topoInicialHeap, %rcx                  #%rcx = topoInicialHeap
-    movq 16(%rbp), %rdx                         #rdx = bloco (endereço do bloco a ser liberado)
+    movq %rdi, %rdx                         #rdx = bloco (endereço do bloco a ser liberado)
     subq $16, %rdx                              #rdx = rdx - 16 (endereço gerencial de ocupado)
 
     cmpq %rbx, %rcx                             #(topoInicialHeap == fimHeap)
@@ -78,7 +82,7 @@ liberaMem:
         addq $8, %rbx                           #rbx = rcx + 8
         movq (%rbx), %rbx                       #rbx = *(rcx + 8) (tamano do bloco anterior)
 
-        movq 16(%rbp), %rdx                     #rdx = parâmetro (endereço do bloco)
+        movq %rdi, %rdx                     #rdx = parâmetro (endereço do bloco)
         subq $8, %rdx                           #rdx = parâmetro - 8 (endereço do tamanho do bloco)
         movq (%rdx), %rdx                       #rdx = *(rdx) (rdx = tamanho)
 
@@ -86,12 +90,12 @@ liberaMem:
         addq %rbx, %rdx                         #rdx = tamanho + 16 + tamanho bloco anterior
         movq %rdx, 8(%rcx)                      #*(rcx + 8) = (tamanho + 16 + tamanho bloco anterior)
         addq $16, %rsi                          #rsi = endereço gerencial do bloco + 16
-        movq %rsi, 16(%rbp)                     #bloco = endereço gerencial do bloco anterior + 16
+        movq %rsi, %rdi                     #bloco = endereço gerencial do bloco anterior + 16
        
 
     else_if:
     movq fimHeap, %rbx                          #rbx = fimHeap
-    movq 16(%rbp), %rdx                         #rdx = bloco (endereço do bloco a ser liberado)
+    movq %rdi, %rdx                         #rdx = bloco (endereço do bloco a ser liberado)
     movq -8(%rdx), %rcx                         #rcx = tamanho do bloco
     addq %rdx, %rcx                             #rcx = endereço do bloco + tamanho do bloco
 
@@ -102,17 +106,17 @@ liberaMem:
         jne libera_bloco
             movq 8(%rcx), %rbx                  #rbx = tamanho do próximo bloco
             addq $16, %rbx                      #rbx = tamanho do próximo bloco + 16
-            movq 16(%rbp), %rcx                 #rcx = endereço do bloco
+            movq %rdi, %rcx                 #rcx = endereço do bloco
             subq $8, %rcx                       #rcx = endereço do bloco - 8
 
             movq (%rcx), %rcx                   #rcx = *(rcx - 8)
             addq %rbx, %rcx                     #rcx = tamanho do bloco + tamanho do próximo bloco + 16
-            movq 16(%rbp), %rbx                 #rbx = endereço do bloco
+            movq %rdi, %rbx                 #rbx = endereço do bloco
             subq $8, %rbx                       #rbx = endereço do bloco - 8 
             movq %rcx, (%rbx)                   #*(endereço do bloco - 8) = (tamanho do bloco + tamanho do próximo bloco + 16)
                         
     libera_bloco:
-    movq 16(%rbp), %rbx
+    movq %rdi, %rbx
     subq $16, %rbx
     movq $0, (%rbx)
 
@@ -137,26 +141,26 @@ alocaMem:
         cmpq $0, %rdx                           #rdx == 0? Se não for, o bloco está ocupado e é necessário incrementar %rcx para o inicio do próximo bloco
         jne while_it1
             movq 8(%rcx), %rdx                  #rdx =  *(rcx+8), //  rdx = tamanho do bloco
-            cmpq 16(%rbp), %rdx                 #tamanho do bloco - num_bytes > 0 (tem espaço suficiente nesse bloco vazio)
+            cmpq %rdi, %rdx                 #tamanho do bloco - num_bytes > 0 (tem espaço suficiente nesse bloco vazio)
             jl while_it1
                 movq $1, (%rcx)                 #*(rcx) = 1 // *(rcx) = ocupado
                 movq 8(%rcx), %rdx              #rdx = tam_bloco
                 subq $16, %rdx                  #rdx = tam_bloco - 16
-                subq 16(%rbp), %rdx             #rdx = tam_bloco - 16 - num_bytes (quantidade de bytes livres para dados, sem contar os 16 gerenciais)
+                subq %rdi, %rdx             #rdx = tam_bloco - 16 - num_bytes (quantidade de bytes livres para dados, sem contar os 16 gerenciais)
                     
                 cmpq $1, %rdx                   #verifica se a quantidade de bytes que tinha no bloco - (16 + num_bytes) é suficiente para criar um novo bloco (se sobrar 1 byte é porque tem mais de 16 bytes livres)
                 jl else
-                    movq 16(%rbp), %rbx         #rbx = num_bytes
+                    movq %rdi, %rbx         #rbx = num_bytes
                     movq %rbx, 8(%rcx)          #*(rcx+8) = num_bytes
 
                     addq $16, %rcx              #rcx = rcx + 16
-                    addq 16(%rbp), %rcx         #rcx = rcx + 16 + num_bytes
+                    addq %rdi, %rcx         #rcx = rcx + 16 + num_bytes
                     movq $0, (%rcx)             #*(rcx + 16 + num_bytes) = 0
                     addq $8, %rcx               #rcx = rcx + 16 + num_bytes + 8
                     movq %rdx, (%rcx)           #*(rcx + 24 + num_bytes) = %rdx (resto dos bytes - 16)
 
                     subq $8, %rcx               #rcx = rcx - 8 (voltando para o endereço gerencial do novo bloco)
-                    subq 16(%rbp), %rcx         #rcx = rcx - num_bytes (voltando para o inicio do bloco)
+                    subq %rdi, %rcx         #rcx = rcx - num_bytes (voltando para o inicio do bloco)
 
                     movq %rcx, %rbx             #rbx = rcx
                     addq $16, %rbx              #rbx = rcx + 16
@@ -191,7 +195,9 @@ alocaMem:
     movq fimHeap, %rdx                          #%rdx = fimHeap (último bloco alocado)
     movq inicioBloco, %rcx                      #%rcx = inicioBloco (topo dos bytes alocados na heap)
 
-    movq 16(%rbp), %rbx                         #%rbx = num_bytes (parâmetro)
+
+    movq %rdi, %rbx                             #%rbx = num_bytes (parâmetro)
+    movq %rdi, %r9
 
     addq $16, %rbx                              #%rbx = num_bytes + 16
     subq %rcx, %rdx                             #%rdx = fimHeap - inicioBloco
@@ -203,7 +209,7 @@ alocaMem:
     syscall                                     #chama brk para aumentar o tamanho da heap para o novo endereço passado em %rdi
 
     movq fimHeap, %rbx                          #%rbx = fimHeap
-    movq 16(%rbp), %rcx                         #%rcx = num_bytes (parâmetro)
+    movq %r9, %rcx                              #%rcx = num_bytes (parâmetro)
     movq $1, (%rbx)                             #*(%rbx) = 1 (bit_ocupado)
     movq %rcx, 8(%rbx)                          #*(%rbx + 8) = num_bytes (parâmetro)
 
@@ -212,6 +218,7 @@ alocaMem:
     addq $16, %rbx                              #%rbx = fimHeap(anterior) + 16
 
     movq %rbx, %rax                             #%rax = %rbx (endereço do bloco)
+
 
     popq %rbp
     ret
@@ -280,29 +287,3 @@ imprimeMapa:
     addq $8, %rsp
     popq %rbp
     ret
-
-
-_start:
-    pushq %rbp
-    movq %rsp, %rbp
-
-    subq $32, %rsp                          #x1 = -8(%rbp), x2 = -16(%rbp), x3 = -24(%rbp), x4 = -32(%rbp)
-
-    call iniciaAlocador                     #chama a função inicializaAlocador
-
-    movq $10, %rbx                           #coloca num_bytes em %rbx
-    pushq %rbx                              #empilha num_bytes (parâmetro)
-    call alocaMem                           #chama a função alocaMem
-    addq $8, %rsp                           #desempilha o parâmetro
-    movq %rax, -8(%rbp)                     #x1 = %rax
-
-    movq $12, %rax                          #código de chamada de sistema para brk
-    movq $0, %rdi                           #retorna endereço atual da heap em %rax
-    syscall
-
-    call imprimeMapa
-    call finalizaAlocador
-
-    movq $0, %rdi
-    movq $60, %rax                          #encerra o programa
-    syscall
