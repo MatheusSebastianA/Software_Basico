@@ -158,11 +158,8 @@ alocaMem:
                     subq $8, %rcx               #rcx = rcx - 8 (voltando para o endereço gerencial do novo bloco)
                     subq 16(%rbp), %rcx         #rcx = rcx - num_bytes (voltando para o inicio do bloco)
 
-                    movq %rcx, %rbx             #rbx = rcx
-                    addq $16, %rbx              #rbx = rcx + 16
-                    movq %rbx, inicioBloco      #inicioBloco = rcx + 16
-
-                    movq %rbx, %rax             #%rax = %rbx (endereço do bloco)
+                    movq %rcx, inicioBloco      #inicioBloco = rcx
+                    movq %rcx, %rax             #%rax = %rcx (endereço do bloco)
 
                     popq %rbp
                     ret
