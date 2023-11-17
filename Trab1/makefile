@@ -1,21 +1,19 @@
-CFLAGS = -Wall  # flags de compilacao
-
 CC = gcc
+AS = as 
+CFLAGS = -g -no-pie
 
-# arquivos-objeto
-	objects = mallocTeste.o mallocTrab.o
-     
-mallocTeste: mallocTeste.o mallocTrab.o
-	$(CC) -o mallocTeste mallocTeste.o mallocTrab.o
+main: main.o memalloc.o
+  $(CC) $(CFLAGS) -o main main.o memalloc.o
 
-mallocTrab.o: mallocTrab.c
-	$(CC) -c $(CFLAGS) mallocTrab.c
+memalloc.o: memalloc.s
+  $(AS) $(CFLAGS) -c memalloc.s -o memalloc.o
 
-mallocTeste.o: mallocTeste.c
-	$(CC) -c $(CFLAGS) mallocTeste.c
+main.o: main.c memalloc.h
+  $(CC) $(CFLAGS) -c main.c -o main.o
 
 clean:
-	rm -f $(objects) 
+  rm -rf ./*.o
 
 purge:
-	rm -f mallocTeste
+  clean
+  rm -rf main
