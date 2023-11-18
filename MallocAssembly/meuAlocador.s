@@ -4,7 +4,7 @@
     inicioBloco: .quad 0
 
     stringGerencial: .string "################"
-    charLivre: .string "-"
+    charDesocupado: .string "-"
     charOcupado: .string "+"
     charQuebraLinha: .string "\n"
 
@@ -242,7 +242,7 @@ imprimeMapa:
     cmpq -8(%rbp), %rbx                         #-8(%rbp) (iterador) >= %rcx (fimHeap)
     jge fim_while_bloco                         #se for maior ou igual, significa que os blocos acabaram
         movq $1, %rax                           #código de chamada de sistema para write 
-        movq $1, %rdi                           #primeiro argumento do write: descritor de arquivo (1 é stdout)
+        movq $1, %rdi                           #primeiro argumento do write: escrever no stdout
         movq $stringGerencial, %rsi             #segundo argumento do write: ponteiro para a mensagem a ser escrita
         movq $16, %rdx                          #terceiro argumento do write: tamanho da mensagem
         syscall                                 #chama o sistema write
@@ -255,12 +255,12 @@ imprimeMapa:
         cmpq %r12, %r13                         #while (r13 (iterador) < r12 (tamanho do bloco))
         jge fim_while_bytes
             movq $1, %rax                       #código de chamada de sistema para write 
-            movq $1, %rdi                       #primeiro argumento do write: descritor de arquivo (1 é stdout)
+            movq $1, %rdi                       #primeiro argumento do write: escrever no stdout
             movq $1, %rdx                       #tamanho da string (1, será escrito "+" se ocupado ou "-" se desocupado)
 
             cmpq $0, %r10                       #if (r10 (bit_ocupado) == 0)
             jne imprime_ocupado        
-                movq $charLivre, %rsi           #imprime charLivre "-"
+                movq $charDesocupado, %rsi           #imprime charDesocupado "-"
                 jmp fim_imprime_if              #fim imprime_if    
 
             imprime_ocupado:                    #if (r10 (bit_ocupado) == 1)
@@ -280,7 +280,7 @@ imprimeMapa:
     movq $charQuebraLinha, %rsi                 #rsi = "\n"
 
     movq $1, %rax                               #código de chamada de sistema para write 
-    movq $1, %rdi                               #primeiro argumento do write: descritor de arquivo (1 é stdout)
+    movq $1, %rdi                               #primeiro argumento do write: escrever no stdout
     movq $1, %rdx                               #tamanho da string (1, será escrito "\n")
     syscall
 
