@@ -13,7 +13,4 @@ main.o: main.c meuAlocador.h
 
 clean:
 	rm -rf ./*.o
-
-purge:
-	clean
 	rm -rf main
