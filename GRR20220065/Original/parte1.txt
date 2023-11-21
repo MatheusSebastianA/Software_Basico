@@ -1,0 +1,1 @@
+Acredito que não tenha nenhum problema com relação ao código, no máximo algum comentário pode estar incoerente tendo em vista que foi necessário mudar alguns registradores ao decorrer do código. 

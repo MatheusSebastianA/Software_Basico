@@ -239,7 +239,7 @@ imprimeMapa:
     movq topoInicialHeap, %rbx                  #rbx = topoInicialHeap
     
     while_bloco:
-    cmpq -8(%rbp), %rbx                         #-8(%rbp) (iterador) >= %rcx (fimHeap)
+    cmpq -8(%rbp), %rbx                         #-8(%rbp) (iterador) < %rbx (fimHeap)
     jge fim_while_bloco                         #se for maior ou igual, significa que os blocos acabaram
         movq $1, %rax                           #código de chamada de sistema para write 
         movq $1, %rdi                           #primeiro argumento do write: escrever no stdout

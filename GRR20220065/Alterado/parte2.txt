@@ -1,0 +1,1 @@
+Acredito que não seja um erro, mas como não estava especificado para o "Worst fit", caso tenham dois blocos livres com a mesma quantidade de bytes, o bloco que será selecionado será o primeiro, já que só é atualizado caso o valor seja extritamente maior que o valor anterior.

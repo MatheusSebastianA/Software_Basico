@@ -1,0 +1,33 @@
+1 - Se você pudesse voltar no tempo, o que você (de hoje) recomendaria ao você (do primeiro dia de aula de Software Básico) para minimizar o sofrimento do desenvolvimento deste trabalho?
+
+Resposta:   
+    Faça um código em C para entender bem o problema proposto e depois o traduza para assembly, começar por assembly pode não ser tão claro de início.
+    Comente bem o código, de preferência a cada linha, isso será bom para encontrar possíveis problemas/erros.
+    Pesquise bem como fazer chamadas ao sistema (write e brk, sobre seus parâmetros e retornos) e se atente ao uso de parâmetros quando tiver um main em C, já que esses valores são passados no %rdi e não em 16(%rbp). 
+    Além disso, a chamada para aumentar a brk retorna o valor do final do endereço alocado, mas não é necessário usar esse retorno, já que se pode calculá-lo a partir do topoInicialHeap.
+
+
+2 - O que você recomendaria ao professor da disciplina quando ele se preparar para o próximo semestre remoto a fim de aumentar o grau de absorção do conteúdo da disciplina por parte dos alunos?
+
+Resposta:    
+    Acredito que a implementação desse código já é suficiente para compreender grande parte do conteúdo da primeira parte da matéria, tendo em vista que é necessário compreender bem os seguintes tópicos:
+    .Registradores;
+    .Ponteiros;
+    .Comparadores e Laços;
+    .Procedimentos;
+    .Parâmetros e Variáveis locais;
+    .Chamadas ao sistema; 
+
+    Apesar de atender muito bem todos esses tópicos, acredito que o tópico de Memória Virtual também deveria ser abordado, apesar de não ver uma ligação direta com a implementação desse trabalho. Mas uma sugestão é que poderia ter algum trabalho secundário ou um questionário que seja necessário uma pesquisa aprofundada sobre esse tema. 
+    
+
+3 -  Explique quais os trechos de código e quais as principais alterações que você fez para que a segunda parte funcionasse , ou indique o motivo de você não ter conseguido terminar alteração. Indique, por exemplo, Quais as linhas de código que você mudou e com qual objetivo.
+
+Resposta:
+    Para essa alteração de First fit para Worst fit houve uma alteração na função "alocaMem", a partir da linha 135 do arquivo alterado. 
+
+    No código original, foi feito um laço para passar por todos os blocos, até que se encontre um bloco vazio com uma quantidade de bytes suficiente para colocar esse novo bloco, e nesse bloco é verificado se existe espaço suficiente para criar um novo bloco.
+    
+    Já no código da segunda parte, foi adicionada uma variável local que guarda o endereço do "pior" bloco, sendo iniciada em 0. O laço que anteriormente procurava o primeiro bloco, agora passa por todos e verifica se o bloco está vazio. Caso esteja, verifica se o tamanho desse bloco é maior que o tamanho do bloco salvo na variável local ( *(endreço + 8) = tamanho do bloco salvo na variável local) ou se a variável local for = 0 significa que esse é o primeiro bloco vazio encontrado.
+    Se o tamanho do bloco vazio encontrado no while for maior que o tamanho do bloco salvo na variável, então a variável local é atualizada para o endereço desse bloco encontrado. Após passar por todos os blocos, sai do laço e verifica se a variável local foi atualizada (se é diferente de 0). Se for diferente de 0, significa que tinha um bloco vazio e esse é o bloco livre com mais bytes. Caso contrário, significa que é necessário criar um novo bloco.
+    Um detalhe importante de ser ressaltado é que dentro do laço do programa original, já é feito ali dentro a alteração do bloco livre para ocupado e as contas necessárias, interrompendo o laço do while ao retornar. Já no código alterado, é necessário passar por todos os blocos, então apenas após o laço o "pior" bloco é alterado para ocupado e as contas são feitas fora desse laço. Além de uma verificação a mais, para verificar se a variável local tem algum endereço com bloco livre ou se ainda é 0. 
