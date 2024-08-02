@@ -284,7 +284,7 @@ imprimeMapa:
 
             cmpq $0, %r10                       #if (r10 (bit_ocupado) == 0)
             jne imprime_ocupado        
-                movq $charDesocupado, %rsi           #imprime charDesocupado "-"
+                movq $charDesocupado, %rsi      #imprime charDesocupado "-"
                 jmp fim_imprime_if              #fim imprime_if    
 
             imprime_ocupado:                    #if (r10 (bit_ocupado) == 1)
